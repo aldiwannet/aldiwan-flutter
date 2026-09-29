@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1
+
+- Use the dedicated API host's canonical base URL: `https://api.aldiwan.net/v1`.
+
 ## 0.1.0
 
 - Initial typed Dart and Flutter API client for the current developer API.

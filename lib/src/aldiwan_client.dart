@@ -25,7 +25,7 @@ final class AldiwanClient {
           maxRetries, 'maxRetries', 'Must not be negative.');
     }
     final transport = AldiwanTransport(
-        baseUri: baseUri ?? Uri.parse('https://api.aldiwan.net/api/v1'),
+        baseUri: baseUri ?? Uri.parse('https://api.aldiwan.net/v1'),
         apiKey: apiKey,
         client: _httpClient,
         timeout: timeout,

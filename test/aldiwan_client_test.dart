@@ -26,7 +26,7 @@ void main() {
           return utf8Response('{"data":$poemJson}', 200);
         }));
     final poem = await client.poems.get(42);
-    expect(requested.url.toString(), 'https://api.aldiwan.net/api/v1/poems/42');
+    expect(requested.url.toString(), 'https://api.aldiwan.net/v1/poems/42');
     expect(requested.headers['authorization'], 'Bearer test-key');
     expect(poem.id, 42);
     expect(poem.text, 'نص القصيدة');
@@ -49,7 +49,7 @@ void main() {
         page: 2,
         perPage: 10,
         filters: const PoemFilters(meter: 'الطويل', style: PoemStyle.vertical));
-    expect(requested.path, '/api/v1/poems');
+    expect(requested.path, '/v1/poems');
     expect(requested.queryParameters['meter'], 'الطويل');
     expect(requested.queryParameters['poem_style'], 'vertical');
     expect(page.currentPage, 2);
@@ -68,7 +68,7 @@ void main() {
         }));
     expect((await client.poets.get(7)).name, 'شاعر');
     expect((await client.poets.poems(7)).items.single.id, 42);
-    expect(paths, ['/api/v1/poets/7', '/api/v1/poets/7/poems']);
+    expect(paths, ['/v1/poets/7', '/v1/poets/7/poems']);
   });
 
   test('uses the current search route and grouped DTO', () async {
@@ -81,7 +81,7 @@ void main() {
               '{"data":{"poems":[$poemJson],"poets":[$poetJson]}}', 200);
         }));
     final result = await client.search.search('شاعر', type: SearchType.all);
-    expect(requested.path, '/api/v1/search');
+    expect(requested.path, '/v1/search');
     expect(requested.queryParameters['q'], 'شاعر');
     expect(result.poems.single.id, 42);
     expect(result.poets.single.id, 7);

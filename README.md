@@ -43,7 +43,7 @@ final page = await client.poems.list(
 );
 ```
 
-The default base URL is `https://api.aldiwan.net/api/v1`. You may inject an `http.Client` for testing. Repository tests use mocks and never contact production. Preserve the returned `attribution` when displaying poetry content.
+The default base URL is `https://api.aldiwan.net/v1`. You may inject an `http.Client` for testing. Repository tests use mocks and never contact production. Preserve the returned `attribution` when displaying poetry content.
 
 `timeout`, `maxRetries`, and `maxRetryAfter` are configurable. Automatic retry is limited to safe GET requests returning `429` with a valid, bounded `Retry-After` value.
 
