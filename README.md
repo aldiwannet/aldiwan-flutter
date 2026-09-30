@@ -8,7 +8,7 @@
 
 ```yaml
 dependencies:
-  aldiwan: ^0.1.0
+  aldiwan: ^0.2.0
 ```
 
 أنشئ API key من منصة مطوري الديوان، واحفظه خارج المصدر. لا تضع المفتاح داخل تطبيق Flutter موزع للمستخدمين؛ استخدم backend وسيطًا عند الحاجة إلى إبقائه سريًا.
@@ -27,7 +27,7 @@ try {
 
 الخدمات المتاحة:
 
-- `client.poems.list/get` مع فلاتر الشاعر والعصر والموضوع والبحر والقافية والنمط.
+- `client.poems.list` يعيد `PoemSummary` مع metadata ومقتطف محدود، و`get` يعيد `Poem` بالنص الكامل ويستهلك كوتة النص الكامل.
 - `client.poets.list/get/poems`.
 - `client.search.search` للبحث المجمع.
 - `client.discovery` للتصنيفات والموضوعات والعصور والبحور والقوافي.
@@ -41,11 +41,14 @@ final client = AldiwanClient(apiKey: Platform.environment['ALDIWAN_API_KEY']!);
 final page = await client.poems.list(
   filters: const PoemFilters(meter: 'الطويل', style: PoemStyle.vertical),
 );
+print(page.items.first.excerpt);
+final poem = await client.poems.get(page.items.first.id);
+print(poem.text);
 ```
 
 The default base URL is `https://api.aldiwan.net/v1`. You may inject an `http.Client` for testing. Repository tests use mocks and never contact production. Preserve the returned `attribution` when displaying poetry content.
 
-`timeout`, `maxRetries`, and `maxRetryAfter` are configurable. Automatic retry is limited to safe GET requests returning `429` with a valid, bounded `Retry-After` value.
+`timeout`, `maxRetries`, and `maxRetryAfter` are configurable. Automatic retry is limited to rate-limit responses with a valid, bounded `Retry-After`; calendar quota errors throw `AldiwanQuotaException` without retrying.
 
 Do not commit API keys. A key embedded in a shipped mobile, desktop, or web application can be extracted; proxy requests through a trusted backend if the key must remain confidential.
 

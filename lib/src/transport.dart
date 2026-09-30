@@ -18,8 +18,8 @@ final class AldiwanTransport {
     required this.maxRetries,
     required this.maxRetryAfter,
     Delay? delay,
-  })  : _client = client,
-        _delay = delay ?? Future<void>.delayed;
+  }) : _client = client,
+       _delay = delay ?? Future<void>.delayed;
 
   final Uri baseUri;
   final String apiKey;
@@ -31,29 +31,48 @@ final class AldiwanTransport {
 
   Future<Object?> get(String path, {Map<String, Object?>? query}) async {
     final uri = _uri(path, query);
-    for (var attempt = 0;; attempt++) {
+    for (var attempt = 0; ; attempt++) {
       late http.Response response;
       try {
-        response = await _client.get(
-          uri,
-          headers: {
-            'accept': 'application/json',
-            'authorization': 'Bearer $apiKey'
-          },
-        ).timeout(timeout);
+        response = await _client
+            .get(
+              uri,
+              headers: {
+                'accept': 'application/json',
+                'authorization': 'Bearer $apiKey',
+              },
+            )
+            .timeout(timeout);
       } on TimeoutException {
         throw AldiwanTimeoutException('Request timed out after $timeout.');
       } on SocketException catch (error) {
         throw AldiwanNetworkException(
-            'Network request failed: ${error.message}');
+          'Network request failed: ${error.message}',
+        );
       } on http.ClientException catch (error) {
         throw AldiwanNetworkException(
-            'Network request failed: ${error.message}');
+          'Network request failed: ${error.message}',
+        );
       }
 
-      final requestId = response.headers['x-request-id'] ??
+      final requestId =
+          response.headers['x-request-id'] ??
           _errorValue(response.body, 'request_id');
       if (response.statusCode == 429) {
+        final code = _errorValue(response.body, 'code');
+        if (code == 'quota_exceeded' || code == 'full_text_quota_exceeded') {
+          throw AldiwanQuotaException(
+            _message(response.body, 'Quota exceeded.'),
+            code: code!,
+            dailyRemaining: _headerInt(
+              response.headers['x-fulltextquota-daily-remaining'],
+            ),
+            monthlyRemaining: _headerInt(
+              response.headers['x-fulltextquota-monthly-remaining'],
+            ),
+            requestId: requestId,
+          );
+        }
         final retryAfter = _retryAfter(response.headers['retry-after']);
         if (attempt < maxRetries && retryAfter != null) {
           await _delay(retryAfter);
@@ -68,7 +87,9 @@ final class AldiwanTransport {
       if (response.statusCode < 200 || response.statusCode >= 300) {
         throw AldiwanHttpException(
           _message(
-              response.body, 'Request failed with ${response.statusCode}.'),
+            response.body,
+            'Request failed with ${response.statusCode}.',
+          ),
           statusCode: response.statusCode,
           requestId: requestId,
         );
@@ -84,8 +105,9 @@ final class AldiwanTransport {
 
   Uri _uri(String path, Map<String, Object?>? query) {
     final normalized = path.startsWith('/') ? path.substring(1) : path;
-    final root =
-        baseUri.toString().endsWith('/') ? baseUri : Uri.parse('$baseUri/');
+    final root = baseUri.toString().endsWith('/')
+        ? baseUri
+        : Uri.parse('$baseUri/');
     final uri = root.resolve(normalized);
     if (query == null) return uri;
     return uri.replace(
@@ -133,6 +155,8 @@ final class AldiwanTransport {
     }
     return null;
   }
+
+  int? _headerInt(String? value) => value == null ? null : int.tryParse(value);
 }
 
 JsonMap jsonObject(Object? value) {

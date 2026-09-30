@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0
+
+- Split excerpt-only `PoemSummary` list/search results from full-text `Poem` details.
+- Add typed calendar-quota errors that are not retried automatically.
+
 ## 0.1.1
 
 - Use the dedicated API host's canonical base URL: `https://api.aldiwan.net/v1`.

@@ -7,21 +7,22 @@ enum PoemStyle { vertical, prose, freeVerse, unknown }
 
 enum DisplayLayout { hemistichs, lines, stanzas }
 
-final class Poem {
-  const Poem(
-      {required this.id,
-      required this.title,
-      required this.slug,
-      required this.poet,
-      required this.era,
-      required this.poemStyle,
-      required this.displayLayout,
-      required this.text,
-      required this.canonicalUrl,
-      required this.attribution,
-      this.meter,
-      this.theme,
-      this.rhyme});
+class PoemSummary {
+  const PoemSummary({
+    required this.id,
+    required this.title,
+    required this.slug,
+    required this.poet,
+    required this.era,
+    required this.poemStyle,
+    required this.displayLayout,
+    required this.excerpt,
+    required this.canonicalUrl,
+    required this.attribution,
+    this.meter,
+    this.theme,
+    this.rhyme,
+  });
   final int id;
   final String title;
   final String slug;
@@ -32,32 +33,78 @@ final class Poem {
   final String? rhyme;
   final PoemStyle poemStyle;
   final DisplayLayout displayLayout;
-  final String text;
+  final String excerpt;
   final Uri canonicalUrl;
   final Attribution attribution;
 
-  factory Poem.fromJson(JsonMap json) => Poem(
-        id: requireInt(json, 'id'),
-        title: requireString(json, 'title'),
-        slug: requireString(json, 'slug'),
-        poet: PoetSummary.fromJson(requireMap(json, 'poet')),
-        era: Era.fromJson(requireMap(json, 'era')),
-        meter: nullableString(json['meter']),
-        theme: nullableString(json['theme']),
-        rhyme: nullableString(json['rhyme']),
-        poemStyle: switch (requireString(json, 'poem_style')) {
-          'vertical' => PoemStyle.vertical,
-          'prose' => PoemStyle.prose,
-          'free_verse' => PoemStyle.freeVerse,
-          _ => PoemStyle.unknown
-        },
-        displayLayout: switch (requireString(json, 'display_layout')) {
-          'hemistichs' => DisplayLayout.hemistichs,
-          'stanzas' => DisplayLayout.stanzas,
-          _ => DisplayLayout.lines
-        },
-        text: requireString(json, 'text'),
-        canonicalUrl: Uri.parse(requireString(json, 'canonical_url')),
-        attribution: Attribution.fromJson(requireMap(json, 'attribution')),
-      );
+  factory PoemSummary.fromJson(JsonMap json) => PoemSummary(
+    id: requireInt(json, 'id'),
+    title: requireString(json, 'title'),
+    slug: requireString(json, 'slug'),
+    poet: PoetSummary.fromJson(requireMap(json, 'poet')),
+    era: Era.fromJson(requireMap(json, 'era')),
+    meter: nullableString(json['meter']),
+    theme: nullableString(json['theme']),
+    rhyme: nullableString(json['rhyme']),
+    poemStyle: parsePoemStyle(requireString(json, 'poem_style')),
+    displayLayout: parseDisplayLayout(requireString(json, 'display_layout')),
+    excerpt: requireString(json, 'excerpt'),
+    canonicalUrl: Uri.parse(requireString(json, 'canonical_url')),
+    attribution: Attribution.fromJson(requireMap(json, 'attribution')),
+  );
 }
+
+/// A single poem detail. Full text is intentionally available only here.
+final class Poem extends PoemSummary {
+  const Poem({
+    required super.id,
+    required super.title,
+    required super.slug,
+    required super.poet,
+    required super.era,
+    required super.poemStyle,
+    required super.displayLayout,
+    required super.excerpt,
+    required super.canonicalUrl,
+    required super.attribution,
+    required this.text,
+    super.meter,
+    super.theme,
+    super.rhyme,
+  });
+
+  final String text;
+
+  factory Poem.fromJson(JsonMap json) {
+    final summary = PoemSummary.fromJson(json);
+    return Poem(
+      id: summary.id,
+      title: summary.title,
+      slug: summary.slug,
+      poet: summary.poet,
+      era: summary.era,
+      meter: summary.meter,
+      theme: summary.theme,
+      rhyme: summary.rhyme,
+      poemStyle: summary.poemStyle,
+      displayLayout: summary.displayLayout,
+      excerpt: summary.excerpt,
+      text: requireString(json, 'text'),
+      canonicalUrl: summary.canonicalUrl,
+      attribution: summary.attribution,
+    );
+  }
+}
+
+PoemStyle parsePoemStyle(String value) => switch (value) {
+  'vertical' => PoemStyle.vertical,
+  'prose' => PoemStyle.prose,
+  'free_verse' => PoemStyle.freeVerse,
+  _ => PoemStyle.unknown,
+};
+
+DisplayLayout parseDisplayLayout(String value) => switch (value) {
+  'hemistichs' => DisplayLayout.hemistichs,
+  'stanzas' => DisplayLayout.stanzas,
+  _ => DisplayLayout.lines,
+};
