@@ -17,10 +17,7 @@ final class AldiwanPage<T> {
   bool get hasNextPage => currentPage < lastPage;
   int? get nextPage => hasNextPage ? currentPage + 1 : null;
 
-  factory AldiwanPage.fromJson(
-    Object? value,
-    T Function(JsonMap json) decode,
-  ) {
+  factory AldiwanPage.fromJson(Object? value, T Function(JsonMap json) decode) {
     if (value is List<Object?>) {
       return AldiwanPage<T>(
         items: value.map((item) => decode(_map(item))).toList(growable: false),

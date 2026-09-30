@@ -15,23 +15,27 @@ final class AldiwanClient {
     int maxRetries = 2,
     Duration maxRetryAfter = const Duration(seconds: 30),
     Delay? delay,
-  })  : _ownsClient = httpClient == null,
-        _httpClient = httpClient ?? http.Client() {
+  }) : _ownsClient = httpClient == null,
+       _httpClient = httpClient ?? http.Client() {
     if (apiKey.trim().isEmpty) {
       throw ArgumentError.value(apiKey, 'apiKey', 'Must not be empty.');
     }
     if (maxRetries < 0) {
       throw ArgumentError.value(
-          maxRetries, 'maxRetries', 'Must not be negative.');
+        maxRetries,
+        'maxRetries',
+        'Must not be negative.',
+      );
     }
     final transport = AldiwanTransport(
-        baseUri: baseUri ?? Uri.parse('https://api.aldiwan.net/v1'),
-        apiKey: apiKey,
-        client: _httpClient,
-        timeout: timeout,
-        maxRetries: maxRetries,
-        maxRetryAfter: maxRetryAfter,
-        delay: delay);
+      baseUri: baseUri ?? Uri.parse('https://api.aldiwan.net/v1'),
+      apiKey: apiKey,
+      client: _httpClient,
+      timeout: timeout,
+      maxRetries: maxRetries,
+      maxRetryAfter: maxRetryAfter,
+      delay: delay,
+    );
     poems = PoemsService(transport);
     poets = PoetsService(transport);
     discovery = DiscoveryService(transport);

@@ -93,9 +93,14 @@ void main() {
         );
       }),
     );
-    final result = await client.search.search('شاعر', type: SearchType.all);
+    final result = await client.search.search(
+      'شاعر',
+      type: SearchType.all,
+      perPage: 7,
+    );
     expect(requested.path, '/v1/search');
     expect(requested.queryParameters['q'], 'شاعر');
+    expect(requested.queryParameters['per_page'], '7');
     expect(result.poems.single.id, 42);
     expect(result.poets.single.id, 7);
   });

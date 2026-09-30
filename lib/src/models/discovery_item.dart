@@ -5,6 +5,7 @@ final class DiscoveryItem {
   final int? id;
   final String name;
   factory DiscoveryItem.fromJson(JsonMap json) => DiscoveryItem(
-      id: json['id'] is int ? json['id'] as int : null,
-      name: requireString(json, 'name'));
+    id: json['id'] is int ? json['id'] as int : null,
+    name: requireString(json, 'name'),
+  );
 }

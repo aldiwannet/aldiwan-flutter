@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0
+
+- Add the bounded `perPage` option to grouped search requests.
+- Apply the official Dart formatter across the public models and services.
+
 ## 0.2.0
 
 - Split excerpt-only `PoemSummary` list/search results from full-text `Poem` details.

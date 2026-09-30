@@ -12,6 +12,7 @@ final class DiscoveryService {
   Future<List<DiscoveryItem>> rhymes() => _list('rhymes');
   Future<List<DiscoveryItem>> _list(String path) async =>
       AldiwanPage<DiscoveryItem>.fromJson(
-              await _transport.get(path), DiscoveryItem.fromJson)
-          .items;
+        await _transport.get(path),
+        DiscoveryItem.fromJson,
+      ).items;
 }

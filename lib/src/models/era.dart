@@ -5,6 +5,7 @@ final class Era {
   final int? id;
   final String? name;
   factory Era.fromJson(JsonMap json) => Era(
-      id: json['id'] is int ? json['id'] as int : null,
-      name: nullableString(json['name']));
+    id: json['id'] is int ? json['id'] as int : null,
+    name: nullableString(json['name']),
+  );
 }
